@@ -5,6 +5,14 @@
       <div v-if="crud.props.searchToggle">
         <el-input v-model="query.name" clearable size="small" placeholder="请输入表名" style="width: 200px;" class="filter-item" @keyup.enter.native="crud.toQuery" />
         <rrOperation />
+        <el-select v-model="query.dataBaseId" filterable class="edit-input" clearable size="mini" placeholder="数据库" @change="$forceUpdate()">
+          <el-option
+            v-for="item in dataBaseIds"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value"
+          />
+        </el-select>
       </div>
       <crudOperation>
         <el-tooltip slot="right" class="item" effect="dark" content="数据库中表字段变动时使用该功能" placement="top-start">
@@ -35,13 +43,29 @@
               预览
             </router-link>
           </el-button>
-          <el-button size="mini" style="margin-left: -1px;margin-right: 2px" type="text" @click="toDownload(scope.row.tableName)">下载</el-button>
-          <el-button size="mini" style="margin-left: -1px;margin-right: 2px" type="text">
-            <router-link :to="'/sys-tools/generator/config/' + scope.row.tableName">
+          <el-button
+            size="mini"
+            style="margin-left: -1px;margin-right: 2px"
+            type="text"
+            @click="toDownload(scope.row.tableName,scope.row.dataBaseId)"
+          >下载</el-button>
+          <el-button
+            size="mini"
+            style="margin-left: -1px;margin-right: 2px"
+            type="text"
+          >
+            <router-link
+              :to="'/sys-tools/generator/config/' + scope.row.tableName + '/' + scope.row.dataBaseId"
+            >
               配置
             </router-link>
           </el-button>
-          <el-button type="text" style="margin-left: -1px" size="mini" @click="toGen(scope.row.tableName)">生成</el-button>
+          <el-button
+            type="text"
+            style="margin-left: -1px"
+            size="mini"
+            @click="toGen(scope.row.tableName,scope.row.dataBaseId)"
+          >生成</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -68,16 +92,36 @@ export default {
   mixins: [presenter(), header()],
   data() {
     return {
-      syncLoading: false
+      syncLoading: false,
+      dataBaseIds: [
+        { value: 'local', label: '系统数据库' },
+        { value: '9f255bb056fb44d599d98bf3c0df175c', label: '228MSSQL' },
+        { value: 'a40e427316214fc0b916b68677f08c33', label: '223MariDB' },
+        { value: '23912cf55aa94205a83f8ae94e858786', label: '12GYDE' }
+      ]
     }
   },
   created() {
-    this.crud.optShow = { add: false, edit: false, del: false, download: false }
+    this.crud.optShow = {
+      add: false,
+      edit: false,
+      del: false,
+      download: false
+    }
+    if (this.query.dataBaseId == null || this.query.dataBaseId.length === 0) {
+      this.query.dataBaseId = 'local'
+    }
+    console.log('in:' + this.query.dataBaseId)
   },
   methods: {
-    toGen(tableName) {
+
+    testName(tableName) {
+      console.log(tableName)
+      console.log(this.query.dataBaseId)
+    },
+    toGen(tableName, dataBaseId) {
       // 生成代码
-      generator(tableName, 0).then(data => {
+      generator(tableName, 0, dataBaseId).then(data => {
         this.$notify({
           title: '生成成功',
           type: 'success',
@@ -85,9 +129,9 @@ export default {
         })
       })
     },
-    toDownload(tableName) {
+    toDownload(tableName, dataBaseId) {
       // 打包下载
-      generator(tableName, 2).then(data => {
+      generator(tableName, 2, dataBaseId).then(data => {
         downloadFile(data, tableName, 'zip')
       })
     },
@@ -97,13 +141,15 @@ export default {
         tables.push(val.tableName)
       })
       this.syncLoading = true
-      sync(tables).then(() => {
-        this.crud.refresh()
-        this.crud.notify('同步成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
-        this.syncLoading = false
-      }).then(() => {
-        this.syncLoading = false
-      })
+      sync(tables, this.query.dataBaseId)
+        .then(() => {
+          this.crud.refresh()
+          this.crud.notify('同步成功', CRUD.NOTIFICATION_TYPE.SUCCESS)
+          this.syncLoading = false
+        })
+        .then(() => {
+          this.syncLoading = false
+        })
     }
   }
 }

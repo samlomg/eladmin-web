@@ -7,9 +7,9 @@ export function getAllTable() {
   })
 }
 
-export function generator(tableName, type) {
+export function generator(tableName, type, dataBaseId) {
   return request({
-    url: 'api/generator/' + tableName + '/' + type,
+    url: 'api/generator/' + tableName + '/' + type + '/' + dataBaseId,
     method: 'post',
     responseType: type === 2 ? 'blob' : ''
   })
@@ -23,11 +23,11 @@ export function save(data) {
   })
 }
 
-export function sync(tables) {
+export function sync(tables, dataBaseId) {
   return request({
-    url: 'api/generator/sync',
+    url: 'api/generator/sync/' + tables + '/' + dataBaseId,
     method: 'post',
-    data: tables
+    data: {}
   })
 }
 

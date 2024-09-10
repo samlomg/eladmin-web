@@ -1,8 +1,9 @@
 import request from '@/utils/request'
 
-export function get(tableName) {
+export function get(tableName, dataBaseId) {
+  console.log('get: dataBaseId:' + dataBaseId)
   return request({
-    url: 'api/genConfig/' + tableName,
+    url: 'api/genConfig/' + tableName + '/' + dataBaseId,
     method: 'get'
   })
 }
