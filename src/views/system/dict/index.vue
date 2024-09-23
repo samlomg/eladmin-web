@@ -9,6 +9,30 @@
         <el-form-item label="描述">
           <el-input v-model="form.description" style="width: 370px;" />
         </el-form-item>
+        <el-form-item label="字典类型">
+          <!--          <el-input v-model="form.dictType" style="width: 370px;" />-->
+          <el-select v-model="form.dictType" filterable placeholder="请选择" :onchange="dictTypeChange()">
+            <el-option
+              v-for="item in dictType"
+              :key="item.id"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item v-show="show.dictSql" label="外联的SQL">
+          <el-input v-model="form.dictSql" type="textarea" style="width: 370px;" />
+        </el-form-item>
+        <el-form-item v-show="show.dictDatabase" label="关联的数据库">
+          <el-select v-model="form.dictDatabase" filterable class="edit-input" clearable size="mini">
+            <el-option
+              v-for="item in dict.mnt_database"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="text" @click="crud.cancelCU">取消</el-button>
@@ -33,6 +57,18 @@
             <el-table-column type="selection" width="55" />
             <el-table-column :show-overflow-tooltip="true" prop="name" label="名称" />
             <el-table-column :show-overflow-tooltip="true" prop="description" label="描述" />
+            <el-table-column prop="dictType" label="类型">
+              <template slot-scope="scope">
+                {{ dictTypeShow[scope.row.dictType] }}
+              </template>
+            </el-table-column>
+            <el-table-column :show-overflow-tooltip="true" prop="dictSql" label="外联的SQL" />
+            <el-table-column prop="dictDatabase" label="关联的数据库">
+              <template slot-scope="scope">
+                <!--                {{ dataBaseIdsShow[scope.row.dictDatabase] }}-->
+                {{ dict.label.mnt_database[scope.row.dictDatabase] }}
+              </template>
+            </el-table-column>
             <el-table-column v-if="checkPer(['admin','dict:edit','dict:del'])" label="操作" width="130px" align="center" fixed="right">
               <template slot-scope="scope">
                 <udOperation
@@ -77,7 +113,7 @@ import pagination from '@crud/Pagination'
 import rrOperation from '@crud/RR.operation'
 import udOperation from '@crud/UD.operation'
 
-const defaultForm = { id: null, name: null, description: null, dictDetails: [] }
+const defaultForm = { id: null, name: null, description: null, dictDetails: [], dictType: null, dictSql: null, dictDatabase: null }
 
 export default {
   name: 'Dict',
@@ -88,6 +124,7 @@ export default {
     ]
   },
   mixins: [presenter(), header(), form(defaultForm)],
+  dicts: ['mnt_database'],
   data() {
     return {
       queryTypeOptions: [
@@ -103,6 +140,23 @@ export default {
         add: ['admin', 'dict:add'],
         edit: ['admin', 'dict:edit'],
         del: ['admin', 'dict:del']
+      },
+      dictType: [{
+        id: 1,
+        value: 1,
+        label: '系统字典'
+      }, {
+        id: 2,
+        value: 2,
+        label: '业务字典'
+      }],
+      dictTypeShow: {
+        1: '系统字典',
+        2: '业务字典'
+      },
+      show: {
+        dictSql: false,
+        dictDatabase: false
       }
     }
   },
@@ -119,9 +173,23 @@ export default {
       if (val) {
         this.$refs.dictDetail.query.dictName = val.name
         this.$refs.dictDetail.dictId = val.id
+        this.$refs.dictDetail.query.dictType = val.dictType
         this.$refs.dictDetail.crud.toQuery()
       }
     },
+    // 选了类型之后的
+    dictTypeChange() {
+      console.log('选了类型：' + this.form.dictType)
+      if (this.form.dictType === 2) {
+        this.show.dictSql = true
+        this.show.dictDatabase = true
+      } else {
+        this.show.dictSql = false
+        this.show.dictDatabase = false
+      }
+      console.log('showName：' + this.showName)
+    },
+
     // 编辑前将字典明细临时清空，避免日志入库数据过长
     [CRUD.HOOK.beforeToEdit](crud, form) {
       // 将角色的菜单清空，避免日志入库数据过长

@@ -19,7 +19,7 @@
             <el-input v-model="form.label" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="字典值" prop="value">
-            <el-input v-model="form.value" style="width: 370px;" />
+            <el-input v-model="form.value" type="textarea" style="width: 370px;" />
           </el-form-item>
           <el-form-item label="排序" prop="dictSort">
             <el-input-number v-model.number="form.dictSort" :min="0" :max="999" controls-position="right" style="width: 370px;" />
@@ -41,6 +41,7 @@
         <el-table-column v-if="checkPer(['admin','dict:edit','dict:del'])" label="操作" width="130px" align="center" fixed="right">
           <template slot-scope="scope">
             <udOperation
+              v-if="query.dictType === '系统字典'"
               :data="scope.row"
               :permission="permission"
             />
