@@ -130,6 +130,11 @@
                   </el-select>
                 </template>
               </el-table-column>
+              <el-table-column prop="remark" label="权重">
+                <template slot-scope="scope">
+                  <el-input v-model="data[scope.$index].columnSort" size="mini" class="edit-input" />
+                </template>
+              </el-table-column>
               <el-table-column label="关联字典">
                 <template slot-scope="scope">
                   <el-select v-model="data[scope.$index].dictName" filterable class="edit-input" clearable size="mini" placeholder="请选择">
