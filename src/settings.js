@@ -14,11 +14,11 @@ module.exports = {
   /**
    * @description 记住密码状态下的token在Cookie中存储的天数，默认1天
    */
-  tokenCookieExpires: 1,
+  tokenCookieExpires: 7,
   /**
    * @description 记住密码状态下的密码在Cookie中存储的天数，默认1天s
    */
-  passCookieExpires: 1,
+  passCookieExpires: 7,
   /**
    * @description token key
    */
@@ -38,7 +38,7 @@ module.exports = {
   /**
    * 底部文字，支持html语法
    */
-  footerTxt: '© 2018-2022 Zheng Jie <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License 2.0</a>',
+  footerTxt: '© 2018-2024 Zheng Jie <a href="http://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache License 2.0</a>',
   /**
    * 备案号
    */
